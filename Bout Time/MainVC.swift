@@ -16,6 +16,11 @@ class MainVC: UIViewController {
     var correctAnswers = 0
     var roundsPlayed = 0
     var presidentIndexes: [Int]!
+    var currentIndex = 0
+    var currentIndex1 = 1
+    var currentIndex2 = 2
+    var currentIndex3 = 3
+
     
     // For Timer
     var seconds = 60
@@ -63,7 +68,7 @@ class MainVC: UIViewController {
                                         President(name: "George W Bush", swornIn: 2001),
                                         President(name: "Barack Obama", swornIn: 2009),
                                         President(name: "Donald J Trump", swornIn: 2016)]
-
+    
     @IBOutlet weak var labelOne: UILabel!
     @IBOutlet weak var labelTwo: UILabel!
     @IBOutlet weak var labelThree: UILabel!
@@ -71,14 +76,14 @@ class MainVC: UIViewController {
     @IBOutlet weak var timerLabel: UILabel!
     @IBOutlet weak var failureButton: UIButton!
     @IBOutlet weak var successButton: UIButton!
-    @IBOutlet weak var upOne: UIButton!
     @IBOutlet weak var downOne: UIButton!
     @IBOutlet weak var upTwo: UIButton!
     @IBOutlet weak var downTwo: UIButton!
     @IBOutlet weak var upThree: UIButton!
     @IBOutlet weak var downThree: UIButton!
     @IBOutlet weak var upFour: UIButton!
-    @IBOutlet weak var downFour: UIButton!
+
+    lazy var buttons: [UIButton] = { return [self.downOne, self.upTwo, self.downTwo, self.upThree, self.downThree, self.upFour] }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -88,7 +93,6 @@ class MainVC: UIViewController {
         presidentIndexes = Array(0 ..< presidentsArray.count)
         presidentIndexes.shuffle()
         updateLabelsFor()
-        checkIfCorrect()
         print(presidentIndexes)
     }
     
@@ -97,10 +101,7 @@ class MainVC: UIViewController {
     
     override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?) {
         roundsPlayed += 1
-        presidentIndexes.shuffle()
-        updateLabelsFor()
         checkIfCorrect()
-        updateTimer()
         print("Phone is shaking")
         print(roundsPlayed)
     }
@@ -109,47 +110,75 @@ class MainVC: UIViewController {
     func updateLabelsFor() {
         
         // Reset timer for new round
-        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: (#selector(MainVC.updateTimer)), userInfo: nil, repeats: true)
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: (#selector(MainVC.timerRules)), userInfo: nil, repeats: true)
         
-        let first = presidentsArray[presidentIndexes[0]]
-        let second = presidentsArray[presidentIndexes[1]]
-        let third = presidentsArray[presidentIndexes[2]]
-        let four = presidentsArray[presidentIndexes[3]]
-            
-        labelOne.text = "\(first.name)"
-        labelTwo.text = "\(second.name)"
-        labelThree.text = "\(third.name)"
-        labelFour.text = "\(four.name)"
+        let presidentObject = presidentsArray[presidentIndexes[currentIndex]]
+        labelOne.text = presidentObject.name
+        
+        let presidentObject1 = presidentsArray[presidentIndexes[currentIndex1]]
+        labelTwo.text = presidentObject1.name
+
+        let presidentObject2 = presidentsArray[presidentIndexes[currentIndex2]]
+        labelThree.text = presidentObject2.name
+
+        let presidentObject3 = presidentsArray[presidentIndexes[currentIndex3]]
+        labelFour.text = presidentObject3.name
         
     }
     
     func checkIfCorrect() {
         
-        let first = presidentsArray[presidentIndexes[0]]
-        let second = presidentsArray[presidentIndexes[1]]
-        let third = presidentsArray[presidentIndexes[2]]
-        let four = presidentsArray[presidentIndexes[3]]
+        let first = presidentsArray[presidentIndexes[currentIndex]]
+        let second = presidentsArray[presidentIndexes[currentIndex1]]
+        let third = presidentsArray[presidentIndexes[currentIndex2]]
+        let four = presidentsArray[presidentIndexes[currentIndex3]]
         
-        let answerOne = first.swornIn
-        let answerTwo = second.swornIn
-        let answerThree = third.swornIn
-        let answerFour = four.swornIn
+        let answer1 = first.swornIn
+        let answer2 = second.swornIn
+        let answer3 = third.swornIn
+        let answer4 = four.swornIn
         
-        if answerOne >= answerTwo &&
-           answerTwo >= answerThree &&
-            answerThree >= answerFour {
-            print("You're correct!")
+        if answer1 >= answer2 &&
+           answer2 >= answer3 &&
+            answer3 >= answer4 {
+            print("You've ordered the Presidents correctly!")
+            successButton.isHidden = false
+            timerLabel.isHidden = true
         } else {
-            print("False!")
+            print("Oops! You've entered the wrong order!")
+            failureButton.isHidden = false
+            timerLabel.isHidden = true
         }
         
     }
     
-    func loadNextRound() {
-        //Load the next round of the game
+    func ifOrderCorrect() {
+        correctAnswers += 1
+        roundsPlayed += 1
+        if roundsPlayed >= 6 {
+            print("You have answered \(correctAnswers) out of \(roundsPlayed)")
+            performSegue(withIdentifier: "GameOverVC", sender: self)
+        }
     }
     
-    func updateTimer() {
+    func ifOrderIncorrect () {
+        roundsPlayed += 1
+        if roundsPlayed >= 6 {
+            print("You have answered \(correctAnswers) out of \(roundsPlayed)")
+            performSegue(withIdentifier: "GameOverVC", sender: self)
+        }
+    }
+    
+    func loadNextRound() {
+        timerReset()
+        presidentIndexes.shuffle()
+        updateLabelsFor()
+        successButton.isHidden = true
+        failureButton.isHidden = true
+        timerLabel.isHidden = false
+    }
+    
+    func timerRules() {
         seconds -= 1
         timerLabel.text = String(seconds)
         
@@ -159,51 +188,96 @@ class MainVC: UIViewController {
         }
     }
     
+    func timerReset() {
+        self.timer.invalidate()
+        seconds = 60
+    }
+    
     @IBAction func lossBtnPress(_ sender: Any) {
+        ifOrderIncorrect()
         loadNextRound()
-        updateTimer()
     }
     
     @IBAction func successBtnPress(_ sender: Any) {
+        ifOrderCorrect()
         loadNextRound()
-        updateTimer()
-        correctAnswers += 1
     }
     
-    // Ordering Buttons
+    // Ordering Button
     
-    @IBAction func UpOnePress(_ sender: Any) {
-        let image = #imageLiteral(resourceName: "up_full_selected")
-        upOne.setBackgroundImage(image, for: UIControlState.normal)
+    @IBAction func buttonPressed(_ sender: Any) {
+        
+        guard let button = sender as? UIButton else {
+            return
+        }
+        
+        switch button.tag {
+        case 0:
+            swap (&currentIndex, &currentIndex1)
+            let presidentObject = presidentsArray[presidentIndexes[currentIndex]]
+            labelOne.text = presidentObject.name
+            
+            let presidentObject1 = presidentsArray[presidentIndexes[currentIndex1]]
+            labelTwo.text = presidentObject1.name
+
+            break
+            
+        case 1:
+            swap (&currentIndex, &currentIndex1)
+            let presidentObject = presidentsArray[presidentIndexes[currentIndex]]
+            labelOne.text = presidentObject.name
+            
+            let presidentObject1 = presidentsArray[presidentIndexes[currentIndex1]]
+            labelTwo.text = presidentObject1.name
+            
+            break
+            
+        case 2:
+            swap (&currentIndex1, &currentIndex2)
+            let presidentObject1 = presidentsArray[presidentIndexes[currentIndex1]]
+            labelTwo.text = presidentObject1.name
+            
+            let presidentObject2 = presidentsArray[presidentIndexes[currentIndex2]]
+            labelThree.text = presidentObject2.name
+            
+            break
+            
+        case 3:
+            swap (&currentIndex1, &currentIndex2)
+            let presidentObject1 = presidentsArray[presidentIndexes[currentIndex1]]
+            labelTwo.text = presidentObject1.name
+            
+            let presidentObject2 = presidentsArray[presidentIndexes[currentIndex2]]
+            labelThree.text = presidentObject2.name
+            
+            break
+            
+        case 4:
+            swap (&currentIndex2, &currentIndex3)
+            let presidentObject2 = presidentsArray[presidentIndexes[currentIndex2]]
+            labelThree.text = presidentObject2.name
+            
+            let presidentObject3 = presidentsArray[presidentIndexes[currentIndex3]]
+            labelFour.text = presidentObject3.name
+            
+            break
+            
+        case 5:
+            swap (&currentIndex2, &currentIndex3)
+            let presidentObject2 = presidentsArray[presidentIndexes[currentIndex2]]
+            labelThree.text = presidentObject2.name
+            
+            let presidentObject3 = presidentsArray[presidentIndexes[currentIndex3]]
+            labelFour.text = presidentObject3.name
+            
+            break
+            
+        default:
+            print("An error has occured")
+            return
+        }
     }
-    @IBAction func downOnePress(_ sender: Any) {
-        let image = #imageLiteral(resourceName: "down_full_selected")
-        downOne.setBackgroundImage(image, for: UIControlState.normal)
-    }
-    @IBAction func UpTwoPress(_ sender: Any) {
-        let image = #imageLiteral(resourceName: "up_full_selected")
-        downOne.setBackgroundImage(image, for: UIControlState.normal)
-    }
-    @IBAction func downTwoPress(_ sender: Any) {
-        let image = #imageLiteral(resourceName: "down_full_selected")
-        downOne.setBackgroundImage(image, for: UIControlState.normal)
-    }
-    @IBAction func UpThreePress(_ sender: Any) {
-        let image = #imageLiteral(resourceName: "up_full_selected")
-        downOne.setBackgroundImage(image, for: UIControlState.normal)
-    }
-    @IBAction func downThreePress(_ sender: Any) {
-        let image = #imageLiteral(resourceName: "down_full_selected")
-        downOne.setBackgroundImage(image, for: UIControlState.normal)
-    }
-    @IBAction func UpFourPress(_ sender: Any) {
-        let image = #imageLiteral(resourceName: "up_full_selected")
-        downOne.setBackgroundImage(image, for: UIControlState.normal)
-    }
-    @IBAction func downFourPress(_ sender: Any) {
-        let image = #imageLiteral(resourceName: "down_full_selected")
-        downOne.setBackgroundImage(image, for: UIControlState.normal)
-    }
+
     
 }
 
