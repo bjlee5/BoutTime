@@ -9,10 +9,14 @@
 import UIKit
 
 class GameOverVC: UIViewController {
-
+    
+    var totalPassed = Int()
+    
+    @IBOutlet weak var correctLabel: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        
+        correctLabel.text = "You ordered \(totalPassed) out of 6 President's correctly!"
     }    
 }

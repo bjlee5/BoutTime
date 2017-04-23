@@ -13,7 +13,7 @@ class MainVC: UIViewController {
     
     //Game Play Variables
     var currentRound = 0
-    var correctAnswers = 0
+    var correctAnswers = Int()
     var roundsPlayed = 0
     var presidentIndexes: [Int]!
     var currentIndex = 0
@@ -82,11 +82,10 @@ class MainVC: UIViewController {
     @IBOutlet weak var upThree: UIButton!
     @IBOutlet weak var downThree: UIButton!
     @IBOutlet weak var upFour: UIButton!
-
-    lazy var buttons: [UIButton] = { return [self.downOne, self.upTwo, self.downTwo, self.upThree, self.downThree, self.upFour] }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         
         failureButton.isHidden = true
         successButton.isHidden = true
@@ -96,11 +95,24 @@ class MainVC: UIViewController {
         print(presidentIndexes)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // Hide the navigation bar on the this view controller
+        self.navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        // Show the navigation bar on other view controllers
+        self.navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+    
     
     // Shake Functionality
     
     override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?) {
-        roundsPlayed += 1
         checkIfCorrect()
         print("Phone is shaking")
         print(roundsPlayed)
@@ -157,7 +169,9 @@ class MainVC: UIViewController {
         roundsPlayed += 1
         if roundsPlayed >= 6 {
             print("You have answered \(correctAnswers) out of \(roundsPlayed)")
-            performSegue(withIdentifier: "GameOverVC", sender: self)
+            let myVC = storyboard?.instantiateViewController(withIdentifier: "GameOverVC") as! GameOverVC
+            myVC.totalPassed = correctAnswers
+            navigationController?.pushViewController(myVC, animated: true)
         }
     }
     
@@ -165,7 +179,9 @@ class MainVC: UIViewController {
         roundsPlayed += 1
         if roundsPlayed >= 6 {
             print("You have answered \(correctAnswers) out of \(roundsPlayed)")
-            performSegue(withIdentifier: "GameOverVC", sender: self)
+            let myVC = storyboard?.instantiateViewController(withIdentifier: "GameOverVC") as! GameOverVC
+            myVC.totalPassed = correctAnswers
+            navigationController?.pushViewController(myVC, animated: true)
         }
     }
     
