@@ -82,11 +82,16 @@ class MainVC: UIViewController {
     @IBOutlet weak var upThree: UIButton!
     @IBOutlet weak var downThree: UIButton!
     @IBOutlet weak var upFour: UIButton!
+    @IBOutlet weak var viewOne: UIView!
+    @IBOutlet weak var viewTwo: UIView!
+    @IBOutlet weak var viewThree: UIView!
+    @IBOutlet weak var viewFour: UIView!
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        
+
         failureButton.isHidden = true
         successButton.isHidden = true
         presidentIndexes = Array(0 ..< presidentsArray.count)
@@ -191,7 +196,6 @@ class MainVC: UIViewController {
         updateLabelsFor()
         successButton.isHidden = true
         failureButton.isHidden = true
-        timerLabel.isHidden = false
     }
     
     func timerRules() {
@@ -201,10 +205,12 @@ class MainVC: UIViewController {
         if seconds == 0 {
             self.timer.invalidate()
             seconds = 60
+            checkIfCorrect()
         }
     }
     
     func timerReset() {
+        timerLabel.isHidden = false
         self.timer.invalidate()
         seconds = 60
     }
@@ -239,6 +245,7 @@ class MainVC: UIViewController {
             break
             
         case 1:
+            button.isSelected = true
             swap (&currentIndex, &currentIndex1)
             let presidentObject = presidentsArray[presidentIndexes[currentIndex]]
             labelOne.text = presidentObject.name

@@ -267,6 +267,10 @@
                         <outlet property="upFour" destination="QRy-hu-mPS" id="J3R-t3-ZCv"/>
                         <outlet property="upThree" destination="ZtR-u8-Qrk" id="7Ra-Os-gTP"/>
                         <outlet property="upTwo" destination="ZBo-IP-697" id="9Lw-Ay-MRM"/>
+                        <outlet property="viewFour" destination="oql-wI-VwO" id="zqE-zR-ngc"/>
+                        <outlet property="viewOne" destination="OcX-6M-fYC" id="Mw7-TS-xTG"/>
+                        <outlet property="viewThree" destination="JyZ-T0-DN0" id="DEB-fp-6ld"/>
+                        <outlet property="viewTwo" destination="2LA-TU-mbc" id="F2e-sV-HEb"/>
                         <segue destination="Hdf-2r-A8z" kind="show" identifier="GameOverVC" id="Kr0-Jn-0Xi"/>
                     </connections>
                 </viewController>
